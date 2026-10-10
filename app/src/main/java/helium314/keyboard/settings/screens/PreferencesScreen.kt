@@ -88,6 +88,7 @@ fun PreferencesScreen(
         Settings.PREFS_LONG_PRESS_SYMBOLS_FOR_NUMPAD,
         Settings.PREF_SHOW_LANGUAGE_SWITCH_KEY,
         Settings.PREF_LANGUAGE_SWITCH_KEY,
+        Settings.PREF_LANGUAGE_SWITCH_MRU_ONLY,
         Settings.PREF_SPACE_TO_CHANGE_LANG,
         Settings.PREF_DIRECT_IME_SWITCH_TARGET,
         Settings.PREF_REMOVE_REDUNDANT_POPUPS,
@@ -182,6 +183,9 @@ fun createPreferencesSettings(context: Context) = listOf(
             ),
             Defaults.PREF_LANGUAGE_SWITCH_KEY
         ) { KeyboardSwitcher.getInstance().setThemeNeedsReload() }
+    },
+    Setting(context, Settings.PREF_LANGUAGE_SWITCH_MRU_ONLY, R.string.language_switch_mru_only, R.string.language_switch_mru_only_summary) { setting ->
+        SwitchPreference(setting, Defaults.PREF_LANGUAGE_SWITCH_MRU_ONLY)
     },
     Setting(context, Settings.PREF_SPACE_TO_CHANGE_LANG,
         R.string.prefs_long_press_keyboard_to_change_lang,

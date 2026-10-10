@@ -88,6 +88,10 @@
     <string name="show_language_switch_key">Language switch key</string>
     <!-- Option for setting whether language switch key should switch internal layouts only, or also to other keyboards -->
     <string name="language_switch_key_behavior">Language switch key behavior</string>
+    <!-- Option to only toggle between the two most recently used languages with the language switch key -->
+    <string name="language_switch_mru_only">Only switch between last two languages</string>
+    <!-- Description for only toggling between the two most recently used languages -->
+    <string name="language_switch_mru_only_summary">Language key toggles current and last used language; use picker or swipe for other languages</string>
     <!-- Option to show shortcut key to emoji palettes -->
     <string name="show_emoji_key">Emoji key</string>
     <!-- Units abbreviation for the duration (milliseconds) -->
