@@ -91,7 +91,15 @@
     <!-- Option to only toggle between the two most recently used languages with the language switch key -->
     <string name="language_switch_mru_only">Only switch between last two languages</string>
     <!-- Description for only toggling between the two most recently used languages -->
-    <string name="language_switch_mru_only_summary">Language key toggles current and last used language; use picker or swipe for other languages</string>
+    <string name="language_switch_mru_only_summary">Language key toggles current and last used language; long-press, picker or swipe for other languages</string>
+    <!-- Option to show a LeanType-only language list on long-press of the language key -->
+    <string name="language_list_popup">Language list on long-press</string>
+    <!-- Description for showing a LeanType-only language list on long-press of the language key -->
+    <string name="language_list_popup_summary">Long-pressing the language key shows enabled languages; otherwise it opens the input method picker</string>
+    <!-- Option to show a LeanType-only language list on long-press of the space bar -->
+    <string name="space_language_list_popup">Language list on space long-press</string>
+    <!-- Description for showing a LeanType-only language list on long-press of the space bar -->
+    <string name="space_language_list_popup_summary">Long-pressing the space bar shows enabled languages; otherwise it opens the input method picker</string>
     <!-- Option to show shortcut key to emoji palettes -->
     <string name="show_emoji_key">Emoji key</string>
     <!-- Units abbreviation for the duration (milliseconds) -->

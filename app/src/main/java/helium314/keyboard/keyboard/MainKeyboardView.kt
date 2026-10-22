@@ -307,7 +307,20 @@ class MainKeyboardView @JvmOverloads constructor(
             popupKeysKeyboard = builder.build()
             mPopupKeysKeyboardCache[key] = popupKeysKeyboard
         }
+        return showPopupPanel(key, tracker, popupKeysKeyboard)
+    }
 
+    override fun showLanguagePopupKeyboard(key: Key, tracker: PointerTracker): PopupKeysPanel? {
+        val kbd = keyboard ?: return null
+        // Always rebuilt: the enabled subtypes may have changed since the last long-press.
+        val data = LanguagePopupUtils.buildPopupData() ?: return null
+        val popupKeysKeyboard = PopupKeysKeyboard.Builder(
+            context, key, kbd, newLabelPaint(key), data.specs, data.columns
+        ).build()
+        return showPopupPanel(key, tracker, popupKeysKeyboard)
+    }
+
+    private fun showPopupPanel(key: Key, tracker: PointerTracker, popupKeysKeyboard: Keyboard): PopupKeysPanel? {
         val container = if (key.hasActionKeyPopups()) mPopupKeysKeyboardForActionContainer else mPopupKeysKeyboardContainer
         val popupKeysKeyboardView = container.findViewById<PopupKeysKeyboardView>(R.id.popup_keys_keyboard_view)
         popupKeysKeyboardView.setKeyboard(popupKeysKeyboard)

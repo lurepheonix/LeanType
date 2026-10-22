@@ -355,6 +355,8 @@ class Settings private constructor() : SharedPreferences.OnSharedPreferenceChang
         const val PREF_SHOW_LANGUAGE_SWITCH_KEY = "show_language_switch_key"
         const val PREF_LANGUAGE_SWITCH_KEY = "language_switch_key"
         const val PREF_LANGUAGE_SWITCH_MRU_ONLY = "language_switch_mru_only"
+        const val PREF_LANGUAGE_LIST_POPUP = "language_list_popup"
+        const val PREF_SPACE_LANGUAGE_LIST_POPUP = "space_language_list_popup"
         const val PREF_LAST_ACTIVE_SUBTYPE = "last_active_subtype"
         const val PREF_DIRECT_IME_SWITCH_TARGET = "direct_ime_switch_target"
         const val PREF_APP_LANGUAGE = "pref_app_language"

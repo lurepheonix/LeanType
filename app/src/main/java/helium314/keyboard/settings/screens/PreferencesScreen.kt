@@ -89,7 +89,9 @@ fun PreferencesScreen(
         Settings.PREF_SHOW_LANGUAGE_SWITCH_KEY,
         Settings.PREF_LANGUAGE_SWITCH_KEY,
         Settings.PREF_LANGUAGE_SWITCH_MRU_ONLY,
+        Settings.PREF_LANGUAGE_LIST_POPUP,
         Settings.PREF_SPACE_TO_CHANGE_LANG,
+        Settings.PREF_SPACE_LANGUAGE_LIST_POPUP,
         Settings.PREF_DIRECT_IME_SWITCH_TARGET,
         Settings.PREF_REMOVE_REDUNDANT_POPUPS,
 
@@ -187,11 +189,20 @@ fun createPreferencesSettings(context: Context) = listOf(
     Setting(context, Settings.PREF_LANGUAGE_SWITCH_MRU_ONLY, R.string.language_switch_mru_only, R.string.language_switch_mru_only_summary) { setting ->
         SwitchPreference(setting, Defaults.PREF_LANGUAGE_SWITCH_MRU_ONLY)
     },
+    Setting(context, Settings.PREF_LANGUAGE_LIST_POPUP, R.string.language_list_popup, R.string.language_list_popup_summary) { setting ->
+        SwitchPreference(setting, Defaults.PREF_LANGUAGE_LIST_POPUP)
+    },
     Setting(context, Settings.PREF_SPACE_TO_CHANGE_LANG,
         R.string.prefs_long_press_keyboard_to_change_lang,
         R.string.prefs_long_press_keyboard_to_change_lang_summary)
     {
         SwitchPreference(it, Defaults.PREF_SPACE_TO_CHANGE_LANG)
+    },
+    Setting(context, Settings.PREF_SPACE_LANGUAGE_LIST_POPUP,
+        R.string.space_language_list_popup,
+        R.string.space_language_list_popup_summary)
+    {
+        SwitchPreference(it, Defaults.PREF_SPACE_LANGUAGE_LIST_POPUP)
     },
     Setting(context, Settings.PREF_DIRECT_IME_SWITCH_TARGET, R.string.direct_ime_switch_title, R.string.direct_ime_switch_summary) {
         ListPreference(

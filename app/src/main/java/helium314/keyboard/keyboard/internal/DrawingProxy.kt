@@ -14,6 +14,8 @@ interface DrawingProxy {
     fun onKeyPressed(key: Key, withPreview: Boolean)
     fun onKeyReleased(key: Key, withAnimation: Boolean)
     fun showPopupKeysKeyboard(key: Key, tracker: PointerTracker): PopupKeysPanel?
+    /** Shows the LeanType-only language list above the language key, or null if nothing to show. */
+    fun showLanguagePopupKeyboard(key: Key, tracker: PointerTracker): PopupKeysPanel? = null
     fun startWhileTypingAnimation(fadeInOrOut: Int)
     fun showSlidingKeyInputPreview(tracker: PointerTracker?)
     fun showGestureTrail(tracker: PointerTracker, showsFloatingPreviewText: Boolean)

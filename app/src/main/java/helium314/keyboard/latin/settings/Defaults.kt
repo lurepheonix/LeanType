@@ -106,6 +106,8 @@ object Defaults {
     const val PREF_SHOW_LANGUAGE_SWITCH_KEY = false
     const val PREF_LANGUAGE_SWITCH_KEY = "internal"
     const val PREF_LANGUAGE_SWITCH_MRU_ONLY = false
+    const val PREF_LANGUAGE_LIST_POPUP = false
+    const val PREF_SPACE_LANGUAGE_LIST_POPUP = false
     const val PREF_LAST_ACTIVE_SUBTYPE = ""
     const val PREF_DIRECT_IME_SWITCH_TARGET = ""
     const val PREF_APP_LANGUAGE = ""

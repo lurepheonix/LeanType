@@ -1145,6 +1145,30 @@ class PointerTracker private constructor(
         }
         val code = key.code
         val sv = Settings.getValues()
+        val wantsLanguageList = code == KeyCode.LANGUAGE_SWITCH && sv.mLanguageListPopup
+            || (code == Constants.CODE_SPACE && key.popupKeys.isNullOrEmpty() && sv.mSpaceForLangChange && sv.mSpaceLanguageListPopup)
+        if (wantsLanguageList) {
+            // LeanType-only language list (vertical, grid on overflow), like additional
+            // symbols popups.
+            val drawingProxy = sDrawingProxy
+            if (drawingProxy != null) {
+                val languagePanel = drawingProxy.showLanguagePopupKeyboard(key, this)
+                if (languagePanel != null) {
+                    setReleasedKeyGraphics(key, false)
+                    val translatedX = languagePanel.translateX(mLastX)
+                    val translatedY = languagePanel.translateY(mLastY)
+                    languagePanel.onDownEvent(translatedX, translatedY, mPointerId, SystemClock.uptimeMillis())
+                    mPopupKeysPanel = languagePanel
+                    if (mKeySwipeAllowed) {
+                        mKeySwipeAllowed = false
+                        sInKeySwipe = false
+                    }
+                    return
+                }
+            }
+            // Nothing to show (e.g. only one enabled subtype): fall through to the
+            // input method picker so other IMEs stay reachable.
+        }
         if (code == KeyCode.LANGUAGE_SWITCH || (code == Constants.CODE_SPACE && key.popupKeys.isNullOrEmpty() && sv.mSpaceForLangChange)) {
             if (sListener.onCustomRequest(Constants.CUSTOM_CODE_SHOW_INPUT_METHOD_PICKER)) {
                 cancelKeyTracking()
