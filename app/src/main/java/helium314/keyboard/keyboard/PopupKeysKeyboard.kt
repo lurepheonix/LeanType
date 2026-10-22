@@ -234,7 +234,9 @@ class PopupKeysKeyboard(params: PopupKeysKeyboardParams) : Keyboard(params) {
         context: Context,
         private val mParentKey: Key,
         keyboard: Keyboard?,
-        paintToMeasure: Paint
+        paintToMeasure: Paint,
+        private val popupKeysOverride: Array<PopupKeySpec>? = null,
+        private val columnOverride: Int? = null
     ) : KeyboardBuilder<PopupKeysKeyboardParams>(context, PopupKeysKeyboardParams()) {
 
         init {
@@ -254,7 +256,7 @@ class PopupKeysKeyboard(params: PopupKeysKeyboardParams) : Keyboard(params) {
             mParams.mVerticalGap = (keyboard?.mVerticalGap ?: 0) / 2
             // This PopupKeysKeyboard is invoked from the parent key.
 
-            val popupKeys = mParentKey.popupKeys ?: emptyArray()
+            val popupKeys = popupKeysOverride ?: mParentKey.popupKeys ?: emptyArray()
             val basePopupKeyWidth = when {
                 mParams.mAbsolutePopupKeyWidth > 0 -> mParams.mAbsolutePopupKeyWidth
                 (keyboard?.mMostCommonKeyWidth ?: 0) > 0 -> keyboard!!.mMostCommonKeyWidth
@@ -271,15 +273,15 @@ class PopupKeysKeyboard(params: PopupKeysKeyboardParams) : Keyboard(params) {
             }
             val padding = context.resources.getDimension(
                 R.dimen.config_popup_keys_keyboard_key_horizontal_padding
-            ) + (if (mParentKey.hasLabelsInPopupKeys()) minKeyWidth * LABEL_PADDING_RATIO else 0.0f)
-            val keyWidth = getMaxKeyWidth(mParentKey, minKeyWidth, padding, paintToMeasure)
+            ) + (if (popupKeysOverride != null || mParentKey.hasLabelsInPopupKeys()) minKeyWidth * LABEL_PADDING_RATIO else 0.0f)
+            val keyWidth = getMaxKeyWidth(mParentKey, popupKeysOverride, minKeyWidth, padding, paintToMeasure)
             val rowHeight = keyboard?.mMostCommonKeyHeight?.takeIf { it > 0 } ?: mParentKey.height
             val dividerWidth = if (mParentKey.needsDividersInPopupKeys()) {
                 (keyWidth * DIVIDER_RATIO).toInt()
             } else {
                 0
             }
-            val defaultColumns = mParentKey.popupKeysColumnNumber
+            val defaultColumns = columnOverride ?: mParentKey.popupKeysColumnNumber
             val keyboardWidth = keyboard?.mId?.mWidth ?: 0
             val spaceForKeys = if (keyWidth > 0) keyboardWidth / keyWidth else 0
             val finalNumColumns = if (spaceForKeys >= min(popupKeys.size, defaultColumns)) {
@@ -290,14 +292,22 @@ class PopupKeysKeyboard(params: PopupKeysKeyboardParams) : Keyboard(params) {
             mParams.setParameters(
                 popupKeys.size, finalNumColumns, keyWidth,
                 rowHeight, mParentKey.x + mParentKey.width / 2, keyboardWidth,
-                mParentKey.isPopupKeysFixedColumn, mParentKey.isPopupKeysFixedOrder, dividerWidth
+                columnOverride != null || mParentKey.isPopupKeysFixedColumn,
+                columnOverride != null || mParentKey.isPopupKeysFixedOrder, dividerWidth
             )
         }
 
         override fun build(): PopupKeysKeyboard {
             val params = mParams
-            val popupKeyFlags = mParentKey.popupKeyLabelFlags
-            val popupKeys = mParentKey.popupKeys ?: emptyArray()
+            // Programmatically built popups (e.g. language list) use label-sized text.
+            val popupKeyFlags = if (popupKeysOverride != null)
+                Key.LABEL_FLAGS_FOLLOW_KEY_LABEL_RATIO or Key.LABEL_FLAGS_AUTO_X_SCALE
+            else mParentKey.popupKeyLabelFlags
+            val popupKeys = popupKeysOverride?.let {
+                // Programmatic popups arrive in ascending order; arrange into bottom-up row
+                // order here, using the final column count (it may shrink on narrow screens).
+                LanguagePopupUtils.toBottomUpRowOrder(it.toList(), params.mNumColumns).toTypedArray()
+            } ?: mParentKey.popupKeys ?: emptyArray()
             val background = if (mParentKey.hasActionKeyPopups()) Key.BACKGROUND_TYPE_ACTION else Key.BACKGROUND_TYPE_NORMAL
             for (n in popupKeys.indices) {
                 val popupKeySpec = popupKeys[n]
@@ -327,11 +337,11 @@ class PopupKeysKeyboard(params: PopupKeysKeyboardParams) : Keyboard(params) {
             private const val DIVIDER_RATIO = 0.2f
 
             private fun getMaxKeyWidth(
-                parentKey: Key, minKeyWidth: Int,
+                parentKey: Key, popupKeysOverride: Array<PopupKeySpec>?, minKeyWidth: Int,
                 padding: Float, paint: Paint
             ): Int {
                 var maxWidth = minKeyWidth
-                val popupKeys = parentKey.popupKeys ?: return maxWidth
+                val popupKeys = popupKeysOverride ?: parentKey.popupKeys ?: return maxWidth
                 for (spec in popupKeys) {
                     val label = spec.mLabel
                     // If the label is single letter, minKeyWidth is enough to hold the label.

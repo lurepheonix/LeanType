@@ -75,6 +75,9 @@ open class SettingsValues(
     val mShowsVoiceInputKey: Boolean
     val mLanguageSwitchKeyToOtherImes: Boolean
     val mLanguageSwitchKeyToOtherSubtypes: Boolean
+    val mLanguageSwitchMruOnly: Boolean
+    val mLanguageListPopup: Boolean
+    val mSpaceLanguageListPopup: Boolean
     private val mShowsLanguageSwitchKey: Boolean
     val mShowsNumberRow: Boolean
     val mShowsNumberRowInSymbols: Boolean
@@ -303,6 +306,9 @@ open class SettingsValues(
         val languagePref = prefs.getString(Settings.PREF_LANGUAGE_SWITCH_KEY, Defaults.PREF_LANGUAGE_SWITCH_KEY) ?: Defaults.PREF_LANGUAGE_SWITCH_KEY
         mLanguageSwitchKeyToOtherImes = languagePref == "input_method" || languagePref == "both"
         mLanguageSwitchKeyToOtherSubtypes = languagePref == "internal" || languagePref == "both"
+        mLanguageSwitchMruOnly = prefs.getBoolean(Settings.PREF_LANGUAGE_SWITCH_MRU_ONLY, Defaults.PREF_LANGUAGE_SWITCH_MRU_ONLY)
+        mLanguageListPopup = prefs.getBoolean(Settings.PREF_LANGUAGE_LIST_POPUP, Defaults.PREF_LANGUAGE_LIST_POPUP)
+        mSpaceLanguageListPopup = prefs.getBoolean(Settings.PREF_SPACE_LANGUAGE_LIST_POPUP, Defaults.PREF_SPACE_LANGUAGE_LIST_POPUP)
         mShowsLanguageSwitchKey = prefs.getBoolean(Settings.PREF_SHOW_LANGUAGE_SWITCH_KEY, Defaults.PREF_SHOW_LANGUAGE_SWITCH_KEY)
 
         mShowsNumberRow = prefs.getBoolean(Settings.PREF_SHOW_NUMBER_ROW, Defaults.PREF_SHOW_NUMBER_ROW)

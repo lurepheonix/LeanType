@@ -168,8 +168,10 @@ class LatinIME : InputMethodService(),
     lateinit var richImm: RichInputMethodManager
         private set
 
-    private val subtypeState = SubtypeState { subtype ->
-        switchToSubtype(subtype)
+    private val subtypeState: SubtypeState by lazy {
+        SubtypeState(DeviceProtectedUtils.getSharedPreferences(this)) { subtype ->
+            switchToSubtype(subtype)
+        }
     }
 
     private val statsUtilsManager: StatsUtilsManager = StatsUtilsManager.getInstance()
@@ -1390,6 +1392,7 @@ class LatinIME : InputMethodService(),
         val prefs = DeviceProtectedUtils.getSharedPreferences(this)
         val target = prefs.getString(Settings.PREF_DIRECT_IME_SWITCH_TARGET, Defaults.PREF_DIRECT_IME_SWITCH_TARGET)
         val hasDirectTarget = !target.isNullOrEmpty()
+        val mruOnly = prefs.getBoolean(Settings.PREF_LANGUAGE_SWITCH_MRU_ONLY, Defaults.PREF_LANGUAGE_SWITCH_MRU_ONLY)
         
         if (switchIme && !switchSubtype) {
             if (hasDirectTarget) { switchToUserIme(); return }
@@ -1398,12 +1401,12 @@ class LatinIME : InputMethodService(),
         
         val hasMoreThanOneSubtype = richImm.hasMultipleEnabledSubtypesInThisIme(true)
         if (switchSubtype && !switchIme) {
-            if (hasMoreThanOneSubtype) subtypeState.switchSubtype(richImm)
+            if (hasMoreThanOneSubtype) subtypeState.switchSubtype(richImm, mruOnly)
             return
         }
         
         if (hasMoreThanOneSubtype && subtypeState.currentSubtypeHasBeenUsed) {
-            subtypeState.switchSubtype(richImm)
+            subtypeState.switchSubtype(richImm, mruOnly)
             return
         }
         
@@ -1413,7 +1416,7 @@ class LatinIME : InputMethodService(),
             else if (hasDirectTarget) { switchToUserIme(); return }
             else if (switchInputMethod()) return
         }
-        subtypeState.switchSubtype(richImm)
+        subtypeState.switchSubtype(richImm, mruOnly)
     }
 
     fun switchToUserIme() {

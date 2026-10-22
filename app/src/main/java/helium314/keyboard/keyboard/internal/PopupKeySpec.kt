@@ -17,13 +17,13 @@ import java.util.ArrayList
 import java.util.HashSet
 import java.util.Locale
 
-class PopupKeySpec(popupKeySpec: String, needsToUpperCase: Boolean, locale: Locale) {
+class PopupKeySpec {
     val mCode: Int
     val mLabel: String?
     val mOutputText: String?
     val mIconName: String?
 
-    init {
+    constructor(popupKeySpec: String, needsToUpperCase: Boolean, locale: Locale) {
         if (popupKeySpec.isEmpty()) throw KeySpecParser.KeySpecParserError("Empty popup key spec")
         val label = KeySpecParser.getLabel(popupKeySpec)
         mLabel = if (needsToUpperCase) StringUtils.toTitleCaseOfKeyLabel(label, locale) else label
@@ -38,6 +38,14 @@ class PopupKeySpec(popupKeySpec: String, needsToUpperCase: Boolean, locale: Loca
             mOutputText = if (needsToUpperCase) StringUtils.toTitleCaseOfKeyLabel(outputText, locale) else outputText
         }
         mIconName = KeySpecParser.getIconName(popupKeySpec)
+    }
+
+    /** Direct constructor for programmatically built popup keys (e.g. language list). */
+    constructor(code: Int, label: String?, outputText: String? = null, iconName: String? = null) {
+        mCode = code
+        mLabel = label
+        mOutputText = outputText
+        mIconName = iconName
     }
 
     fun buildKey(x: Int, y: Int, labelFlags: Int, background: Int, params: KeyboardParams): Key {

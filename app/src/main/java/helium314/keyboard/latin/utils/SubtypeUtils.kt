@@ -15,7 +15,9 @@ import helium314.keyboard.latin.common.LocaleUtils.isGoodMatch
 import helium314.keyboard.latin.settings.Defaults
 import helium314.keyboard.latin.settings.Settings
 import helium314.keyboard.latin.settings.SettingsSubtype.Companion.getExtraValueOf
+import helium314.keyboard.latin.settings.SettingsSubtype.Companion.toSettingsSubtype
 import helium314.keyboard.latin.utils.SubtypeSettings.isEnabled
+import androidx.core.content.edit
 import org.xmlpull.v1.XmlPullParser
 import java.util.Locale
 
@@ -96,7 +98,10 @@ fun getSecondaryLocales(extraValues: String): List<Locale> =
         ?.split(Separators.KV)?.map { it.constructLocale() }.orEmpty()
 
 /** class for tracking subtype switching */
-class SubtypeState(private val switchToSubtype: (InputMethodSubtype?) -> Unit) {
+class SubtypeState(
+    private val prefs: SharedPreferences,
+    private val switchToSubtype: (InputMethodSubtype?) -> Unit
+) {
     // When HintLocales causes a subtype override, we store
     // the overridden subtype here in order to restore it when
     // we switch to another input context that has no HintLocales.
@@ -182,14 +187,58 @@ class SubtypeState(private val switchToSubtype: (InputMethodSubtype?) -> Unit) {
             // we no longer have a subtype to automatically switch back to.
             overriddenByLocale = null
         }
+        // Always track the MRU pair, so enabling "only switch between last two
+        // languages" later (or after restart) has a sensible pair.
+        // Explicit switches (picker, swipe, tap) all end up here.
+        if (oldSubtype != null && oldSubtype != newSubtype && isEnabled(oldSubtype)) {
+            lastActiveSubtype = oldSubtype
+            persistLastActive(oldSubtype)
+        }
     }
 
-    fun switchSubtype(richImm: RichInputMethodManager) {
+    private fun persistLastActive(subtype: InputMethodSubtype?) {
+        if (subtype == null) return
+        try {
+            prefs.edit { putString(Settings.PREF_LAST_ACTIVE_SUBTYPE, subtype.toSettingsSubtype().toPref()) }
+        } catch (_: Exception) { }
+    }
+
+    private fun loadPersistedLastActive(): InputMethodSubtype? {
+        if (lastActiveSubtype != null) return lastActiveSubtype
+        val stored = try {
+            prefs.getString(Settings.PREF_LAST_ACTIVE_SUBTYPE, Defaults.PREF_LAST_ACTIVE_SUBTYPE)
+        } catch (_: Exception) { null } ?: return null
+        if (stored.isEmpty()) return null
+        val resolved = try {
+            stored.toSettingsSubtype().toEnabledSubtype()
+        } catch (_: Exception) { null } ?: return null
+        if (!isEnabled(resolved)) return null
+        lastActiveSubtype = resolved
+        return resolved
+    }
+
+    fun switchSubtype(richImm: RichInputMethodManager, mruOnly: Boolean = false) {
         val currentSubtype = richImm.currentSubtype.rawSubtype
+        if (mruOnly) {
+            val lastActive = loadPersistedLastActive()
+            if (lastActive != null && lastActive != currentSubtype && isEnabled(lastActive)) {
+                // Toggle between current and last used, swapping so the next
+                // tap switches back. Other languages remain reachable via
+                // picker / space swipe, which update the pair via onSubtypeChanged.
+                lastActiveSubtype = currentSubtype
+                persistLastActive(currentSubtype)
+                currentSubtypeHasBeenUsed = false
+                switchToSubtype(lastActive)
+                return
+            }
+            // No usable pair (fresh install, stored subtype disabled): fall through
+            // to normal cycling for this press.
+        }
         val lastActiveSubtype = lastActiveSubtype
         val oldCurrentSubtypeHasBeenUsed = currentSubtypeHasBeenUsed
         if (oldCurrentSubtypeHasBeenUsed) {
             this@SubtypeState.lastActiveSubtype = currentSubtype
+            persistLastActive(currentSubtype)
             currentSubtypeHasBeenUsed = false
         }
         if (oldCurrentSubtypeHasBeenUsed

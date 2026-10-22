@@ -208,6 +208,11 @@ object KeyCode {
     const val TOGGLE_AUTO_CAP =           -10079
     const val TOGGLE_FORCE_AUTO_CAPS =    -10080
     const val GIF =                       -10086
+    // Base code for language-switch popup items (long-press on language key).
+    // Actual item code is LANGUAGE_SWITCH_ITEM_BASE - index, supporting up to
+    // LANGUAGE_SWITCH_ITEM_COUNT languages.
+    const val LANGUAGE_SWITCH_ITEM_BASE = -10100
+    const val LANGUAGE_SWITCH_ITEM_COUNT = 100
 
 
     // Intents
@@ -216,7 +221,7 @@ object KeyCode {
     const val SEND_INTENT_THREE =          -20002
 
     /** to make sure a FlorisBoard code works when reading a JSON layout */
-    fun Int.checkAndConvertCode(): Int = if (this > 0) this else when (this) {
+    fun Int.checkAndConvertCode(): Int = if (this > 0 || isLanguageSwitchItem()) this else when (this) {
         // working
         CURRENCY_SLOT_1, CURRENCY_SLOT_2, CURRENCY_SLOT_3, CURRENCY_SLOT_4, CURRENCY_SLOT_5, CURRENCY_SLOT_6,
         VOICE_INPUT, LANGUAGE_SWITCH, SETTINGS, DELETE, DELETE_WORD, FORWARD_DELETE, FORWARD_DELETE_WORD, ALPHA, SYMBOL, EMOJI, CLIPBOARD, CLIPBOARD_CUT, UNDO,
@@ -246,8 +251,15 @@ object KeyCode {
         else -> throw IllegalStateException("key code $this not yet supported")
     }
 
-    fun Int.isModifier() = when (this) {
-        SHIFT, SYMBOL_ALPHA, ALPHA, SYMBOL, NUMPAD, FN, CTRL, CTRL_LEFT, CTRL_RIGHT, CTRL_LOCK, ALT, ALT_LEFT, ALT_RIGHT,
+    /** Language-switch popup item codes, see [LANGUAGE_SWITCH_ITEM_BASE]. */
+    fun Int.isLanguageSwitchItem(): Boolean =
+        this <= LANGUAGE_SWITCH_ITEM_BASE && this > LANGUAGE_SWITCH_ITEM_BASE - LANGUAGE_SWITCH_ITEM_COUNT
+
+    fun languageSwitchItemCode(index: Int): Int = LANGUAGE_SWITCH_ITEM_BASE - index
+
+    fun languageSwitchItemIndex(code: Int): Int = LANGUAGE_SWITCH_ITEM_BASE - code
+
+    fun Int.isModifier() = when (this) {        SHIFT, SYMBOL_ALPHA, ALPHA, SYMBOL, NUMPAD, FN, CTRL, CTRL_LEFT, CTRL_RIGHT, CTRL_LOCK, ALT, ALT_LEFT, ALT_RIGHT,
         ALT_LOCK, META, META_LEFT, META_RIGHT, META_LOCK, -> true
         else -> false
     }
